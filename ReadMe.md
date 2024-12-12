@@ -162,7 +162,7 @@ The program functions as a basic CLI. How it's designed is to:
 
 2. create an abstract syntax tree (ast). 
 
-In this language the abstract syntax tree is not fully created then used it's evaluated. Essentially: character by character for tokens, token by token for forms, and instruction by instruction for the evaluator.
+In this language the abstract syntax tree is not fully created then used, instead it's evaluated like a generator. Essentially: character by character for tokens, token by token for forms, and instruction by instruction for the evaluator.
 
 I call the ast nodes 'forms'. Basically each form is a node in an abstract syntax tree that has it's own related partial form (array of tokens that makes it up) and the form itself has a direct mapping to a set of instructions that instruct it to do something internal for the user i.e. load into memory, take out of memory, or run an internal function with or without certain memory involved. It has an abstract form attribute that if used holds a child form that gets substituted into the parent form (on execution) (for recursive decent parsing).
 
@@ -174,9 +174,9 @@ Forms come in two types:
     2. abstract
         These are forms where the partial forms can (in concept/execution; it actually doesn't) include forms in them as well as tokens to make up their form. This will use recursion to get the next form and know when to stop based on a look ahead e.g. the form after an ABSTRACT_FORM will be the end form or token desired.
 
-3. Forms map directly to a pre defined set of instructions. Forms are merely abstractions or high level definitions of what the user/developer thinks their code does but forms directly map into instructions that perform the executions based on the tokens and source code.
+Forms map directly to a pre defined set of instructions. Forms are merely abstractions or high level definitions of what the user/developer thinks their code does but forms directly map into instructions that perform the executions based on the tokens and source code.
 
-4. these instructions are evaluated one by one resulting in memory management, external comms, or printing to display (it all depends on what you've implemented as the builtins of your language).
+These instructions are evaluated one by one resulting in memory management, external comms, or printing to display (it all depends on what you've implemented as the builtins of your language).
 
 So, the code follows this format:
 
@@ -221,8 +221,11 @@ return the result and free the frame object
 Generally for this program (before customization/ using it's defaults):
 
 grammars     - mostly well defined (relates parts of text to parts of forms)
+
 forms        - not well defined (relates series of tokens to semantics)
+
 instructions - Mostly not well defined (relating forms to memory + display + external comms)
+
 evaluation   - Mostly not well defined (relating instructions to builtin functions)
 
 # internal commands:
