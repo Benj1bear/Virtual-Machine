@@ -25,6 +25,8 @@ Also, it's not a complete programming language (it's a template), and I'll likel
  - ```make memory``` a simple test to see if the global memory is created as a hash table, a frame can be formed as a hash table in a linked list within the globals hash table, and can be retrieved.
  - ```make evaluator``` to test the eval_loop (runs the program; won't work since I haven't done much here)
 
+Note: make sure to run ```make clean``` before you recompile because it can decide not to compile since the .exe is already up to date (from its point of view).
+
 # Additional info:
 
 Not everything in this implementation is as efficient as it could be or necessary for a language more tailored for what you may want. It's supposed to be that way as a template so that it's easier to modify since you have a base idea of how your lexer and parser are working with a basic implementation of the memory management.
