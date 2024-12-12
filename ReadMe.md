@@ -55,10 +55,11 @@ Emergent matching means the series of tokens are accumulated one by one where wi
 i.e. to illustrate emergent matching:
 
 say these represent the forms:
-
+```
 | A | C | B | A | A |
 | B | B | C | C | B |
 | C | F | G | H | I |
+```
 
 (Note: the forms do not have to be exactly three tokens long. They can be different lengths.)
 
@@ -66,7 +67,7 @@ Each form is separated by ```|``` and reads vertically. Each of the letters repr
 
 Then, this is how the algorithm would work for the sequence of tokens: A, B, C
 (Note: numbers above them are just their examplar indexes in the FORMS array)
-
+```
       0   1   2   3   4
     | A | C | B | A | A |
     | B | B | C | C | B |
@@ -79,7 +80,7 @@ Then, this is how the algorithm would work for the sequence of tokens: A, B, C
 
       Y   N   N   Y -----------stop
     | A | C | B | A | A |
-            
+       
          becomes
 
  CACHED     ||  START FROM LAST INDEX
@@ -110,7 +111,7 @@ Then, this is how the algorithm would work for the sequence of tokens: A, B, C
 
   Y   N
 | C | I |   ||
-
+```
 Since one unique Form is found, it's index is the return value and therefore the algorithm returns 0 as the index of the form (essentially).
 
 So, key points on how the parser works are:
@@ -194,7 +195,7 @@ TOKEN_ID,TOKEN_LPAREN,TOKEN_ID,TOKEN_COMMA,TOKEN_ID,TOKEN_COMMA,TOKEN_ID,TOKEN_C
 forms:
 
 [TOKEN_ID,TOKEN_LPAREN] [TOKEN_ID,TOKEN_COMMA,TOKEN_ID,TOKEN_COMMA,TOKEN_ID,TOKEN_COMMA],TOKEN_RPAREN
-
+```
 (abstract form - ends at TOKEN_RPAREN)
 FORM_CALL, -
             (abstract form - ends at TOKEN_RPAREN)
@@ -215,7 +216,7 @@ REFERENCE new_frame
 new_frame->locals=\*list of function args and kwargs\*
 ... evaluate its source code
 return the result and free the frame object
-
+```
 
 Generally for this program (before customization/ using it's defaults):
 
@@ -232,14 +233,14 @@ There's an internal command code (code 0 on the Default grammar enum e.g. INTERN
 
 i.e. At runtime grammars can be added via an internal command:
 
-\-grammar add token start_grammar end_grammar collect_grammar grammar_name
+\\-grammar add token start_grammar end_grammar collect_grammar grammar_name
 
 Forms are similar (once I implement it):
 
-\-grammar add form token_sequence instruction_mapping
+\\-grammar add form token_sequence instruction_mapping
 
 I'll also add support for modifying the consts variable.
 
 To get the help menu use:
 
-\-?
+\\-?
