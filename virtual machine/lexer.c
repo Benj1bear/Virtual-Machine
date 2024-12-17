@@ -1,22 +1,22 @@
 /* 
     concrete syntax tree (cst) / tokenizer / lexer / grammar layout
 
-    | Function       | line number|
-    -------------------------------
-    lexer_isrunning     - 28
-    token_init          - 31
-    lexer_init          - 38
-    lexer_next          - 48
-    COLLECTOR           - 60
-    IS_CONST            - 74
-    next_token          - 88
-    token_type          - 116
-    collect_token       - 120
-    HAS_LEXER_ENDED     - 162
-    collect_string      - 169
-    compare_grammar     - 196
-    SKIP                - 207
-    check_grammar       - 211
+    | Function       | line number |
+    --------------------------------
+    lexer_isrunning     -  28
+    token_init          -  31
+    lexer_init          -  38
+    lexer_next          -  48
+    COLLECTOR           -  60
+    IS_CONST            -  74
+    next_token          -  88
+    token_type          - 112
+    collect_token       - 116
+    HAS_LEXER_ENDED     - 156
+    collect_string      - 158
+    compare_grammar     - 185
+    SKIP                - 196
+    check_grammar       - 200
 
 */
 #include "utils.c"
@@ -74,7 +74,7 @@ return token_init(token, value);
 #define IS_CONST \
 int i=0; \
 str=consts[0]; \
-while (str!=NULL) /* should we add || str!="\0" ???*/  \
+while (str && i < MAX_GRAMMAR_SIZE) \
 { \
     if (strcmp(str,value)==0){return token_init(TOKEN_CONST, value);} \
     i++; \
@@ -91,11 +91,7 @@ TokenType* next_token(LexerType* lexer)
     {
         // lets you know when tokenization's done
         if (lexer->index == lexer->length){return token_init(TOKEN_EOF, "\0");}
-        else
-        {
-            printf("Error: Unterminated string literal\n");
-            return token_init(TOKEN_ERROR, NULL);
-        }
+        else{return token_init(TOKEN_ERROR, "\0");}
     }
     if (lexer->value == '\n')
     {
@@ -153,18 +149,11 @@ TokenType* collect_token(LexerType* lexer)
         token_type('>', TOKEN_GREATER);
         token_type(',', TOKEN_COMMA);
         token_type('<', TOKEN_LESS);
-        default:
-            printf("Error: Unexpected character '%c'\n", lexer->value);
-            return token_init(TOKEN_ERROR, NULL);
     }
+    return token_init(TOKEN_ERROR, (char[]){lexer->value,'\0'});
 }
 
-#define HAS_LEXER_ENDED \
-if (lexer->value == '\0') \
-{ \
-    printf("Error: Unterminated string literal\n"); \
-    return token_init(TOKEN_ERROR, NULL); \
-}
+#define HAS_LEXER_ENDED if (lexer->value == '\0'){return token_init(TOKEN_ERROR, value);}
 
 TokenType* collect_string(LexerType* lexer)
 {
@@ -225,10 +214,11 @@ TokenType* check_grammar(LexerType* lexer)
             // 0: skip from start to end
             if (collect==0)
             {
-                while (compare_grammar(lexer,end)){lexer_next(lexer);}
+                char* value=NULL; // since the macro uses 'value'
+                while (compare_grammar(lexer,end)){HAS_LEXER_ENDED;lexer_next(lexer);}
                 SKIP(end);
                 return token_init(TOKEN_SKIP, NULL);
-            } 
+            }
             // 1: collect from start to end
             else if (collect==1)
             {
