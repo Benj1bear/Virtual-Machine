@@ -5,12 +5,11 @@
 int token_print(LexerType* lexer)
 {
     TokenType* token=next_token(lexer);
-    while (token->type!=TOKEN_EOF)
+    while (token->type!=TOKEN_EOF && token->type!=TOKEN_ERROR)
     {
         if (token->type==TOKEN_WHITESPACE)
         {printf("TOKEN(%d,%*s)\n", token->type, strlen(token->value),"");}
-        else
-        {printf("TOKEN(%d,%s)\n", token->type, token->value);}
+        else{printf("TOKEN(%d,%s)\n", token->type, token->value);}
         token=next_token(lexer);
     }
     // for the EOF
