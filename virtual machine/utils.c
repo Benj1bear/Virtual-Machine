@@ -185,7 +185,8 @@ while (token != NULL) \
 void add_form(char token_sequence[],char* instruction_mapping)
 {
     // find the last index
-    int index=int_len(FORMS);
+    int index=0;
+    while (FORMS[index][0]!=0){index++;}
     if (index < MAX_FORM_SIZE){printf("Error: The maximum number of forms has been reached.\n");return;}
     FORMS[index+1][0]=0;
     EXEC_FORMS[index+1][0]=0;
@@ -204,7 +205,7 @@ while (FORMS[index][0]!=0) \
     { \
         temp=FORMS[index+1][index2]; \
         if (temp){FORMS[index][index2]=temp;} \
-        else{FORMS[index][index2]=NULL;} \
+        else{FORMS[index][index2]=-1;} \
         index2++; \
     } \
     index++; \
@@ -217,7 +218,12 @@ void remove_form(int original_index)
     REMOVE_FORM(EXEC_FORMS,original_index)
 }
 void view_const(){int index=0;while (consts[index]){printf("%d: %s\n",index,consts[index]);index++;}}
-void add_const(char* constant){consts[int_len(consts)]=constant;}
+void add_const(char* constant)
+{
+    int index=0;
+    while (consts[index]){index++;}
+    consts[index]=constant;
+}
 void remove_const(int index){while (consts[index]){consts[index]=consts[index+1];index++;}}
 #define HANDLE_ERROR else{printf("Error: Invalid arguments for grammar command.\n");}
 #define type(kind) strcmp(instructions[1],kind)==0
