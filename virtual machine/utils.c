@@ -48,7 +48,7 @@ FormType* form_init()
     return form;
 }
 /*
-   gets the length of an array (won't work as expect if array decay occurs 
+   gets the length of an array (won't work as expected if array decay occurs 
    e.g. when you pass in an array into a function it will only pass the 
    pointer to the first element and not the array)
 */
@@ -93,11 +93,11 @@ void help(char** instructions,int instruction_length)
     if (instruction_length==1) // general information about the program
     {
         printf("\n");
-        printf("This program is written an compiled in C for the default language components.\n");
+        printf("This program is written and compiled in C for the default language components.\n");
         printf("The language is designed to be very flexible, meaning, if you want it to be\n");
         printf("ran on a virtual machine, compiled, interpreted, specific grammar extensions, etc.\n");
         printf("You can do this by using the \\- command which allows editing the program at runtime\n");
-        printf("but you also have the option to compile the code to be used internally by program\n");
+        printf("but you can also edit and recompile the program beforehand if necessary\n");
         printf("\n");
         printf("List of possible special commands and arguements to be used with the \\- command:\n");
         printf("\n");
@@ -164,7 +164,7 @@ void remove_grammar(int index)
 void view_form()
 {
     int index=0;
-    while (FORMS[index]!=0)
+    while (FORMS[index][0]!=0)
     {
         printf("%d: ",index);
         int* temp=FORMS[index];
@@ -173,16 +173,54 @@ void view_form()
         index++;
     }
 }
-void add_form(char* token_sequence,char* instruction_mapping)
-{
-    printf("To be implemented\n");
-}
-void remove_form(int index)
-{
-    printf("To be implemented\n");
+#define ASSIGN_FORM(array,sequence) \
+token = strtok(sequence, ","); \
+while (token != NULL) \
+{ \
+    array[index][index2]=atoi(token); \
+    token = strtok(NULL, ","); \
+    index2++; \
 }
 
+void add_form(char token_sequence[],char* instruction_mapping)
+{
+    // find the last index
+    int index=int_len(FORMS);
+    if (index < MAX_FORM_SIZE){printf("Error: The maximum number of forms has been reached.\n");return;}
+    FORMS[index+1][0]=0;
+    EXEC_FORMS[index+1][0]=0;
+    int index2=0;
+    char* token;
+    // convert the instruction sequence into a list of integers
+    ASSIGN_FORM(FORMS,token_sequence);
+    ASSIGN_FORM(EXEC_FORMS,instruction_mapping);
+}
+
+#define REMOVE_FORM(array,index) \
+while (FORMS[index][0]!=0) \
+{ \
+    index2=0; \
+    while (FORMS[index][index2]) \
+    { \
+        temp=FORMS[index+1][index2]; \
+        if (temp){FORMS[index][index2]=temp;} \
+        else{FORMS[index][index2]=NULL;} \
+        index2++; \
+    } \
+    index++; \
+}
+
+void remove_form(int original_index)
+{
+    int index2,temp;
+    REMOVE_FORM(FORMS,original_index)
+    REMOVE_FORM(EXEC_FORMS,original_index)
+}
+void view_const(){int index=0;while (consts[index]){printf("%d: %s\n",index,consts[index]);index++;}}
+void add_const(char* constant){consts[int_len(consts)]=constant;}
+void remove_const(int index){while (consts[index]){consts[index]=consts[index+1];index++;}}
 #define HANDLE_ERROR else{printf("Error: Invalid arguments for grammar command.\n");}
+#define type(kind) strcmp(instructions[1],kind)==0
 /* 
     For viewing and modifying the modifiable grammar
 */
@@ -195,24 +233,32 @@ void grammar(char** instructions,int instruction_length)
     // printf("----------------------");
     // return;
     if (instruction_length > 7){printf("Error: Invalid number of arguments for grammar command. Use 1-7 arguments.\n");return;}
-    if (instruction_length==1){view_grammar();}
+    if (instruction_length==2)
+    {
+        if (type("token")){view_grammar();}
+        else if(type("form")){view_form();}
+        else if(type("const")){view_const();}
+        HANDLE_ERROR
+    }
     else if (instruction_length==7 && strcmp(instructions[1],"add")==0)
     {
-        if (strcmp(instructions[1],"token")==0){add_grammar(instructions[3],instructions[4],atoi(instructions[5]),instructions[6]);}
-        else if(strcmp(instructions[1],"form")==0){add_form(instructions[3],instructions[4]);}
+        if (type("token")){add_grammar(instructions[3],instructions[4],atoi(instructions[5]),instructions[6]);}
+        else if(type("form")){add_form(instructions[3],instructions[4]);}
+        else if(type("const")){add_const(instructions[3]);}
         HANDLE_ERROR
     }
     else if (instruction_length==3 && strcmp(instructions[1],"remove")==0)
     {
-        if (strcmp(instructions[1],"token")==0){remove_grammar(atoi(instructions[3]));}
-        else if(strcmp(instructions[1],"form")==0){remove_form(atoi(instructions[3]));}
+        if (type("token")){remove_grammar(atoi(instructions[3]));}
+        else if(type("form")){remove_form(atoi(instructions[3]));}
+        else if(type("const")){remove_const(atoi(instructions[3]));}
         HANDLE_ERROR
     }
     /* for debugging */
     // for (int i = 0; i < custom_grammar_length; i++)
     // {printf("Start: %s,End: %s,Collect: %d,Name: %s\n",start_grammar[i],end_grammar[i],collect_grammar[i],grammar_name[i]);}
 }
-/* 
+/*
     allows compiling sections of the program into machine code
 */
 void compile(char** instructions,int instruction_length)
@@ -228,7 +274,7 @@ void exit_proxy(char** instructions,int instruction_length)
     printf("Error: Invalid number of arguments for internal function \\-exit. Use 1 or 2 arguments.\n");
 }
 
-/* 
+/*
     Restarts the session
 */
 void restart(char** instructions,int instruction_length)
@@ -248,15 +294,15 @@ void (*internals_values[])(char**, int) = {help,grammar,compile,exit_proxy,resta
 
     Note: in c, when you pass in an array (i.e. char* keys[])
     only a pointer to the first element is passed in. This is
-    called array decay. Because of this we have to pass in it's
+    called array decay. Because of this we have to pass in its
     size separately.
 */
 void command_parse(char* instructions,char* keys[],void (*values[])(char**, int),int array_size)
 {
     /* 
-        the instruction array can be fixed to the most 
-        amount of args there are used for the internal 
-        functions should be enough memory allocated
+       the instruction array can be fixed to the most 
+       amount of args there are used for the internal 
+       functions should be enough memory allocated
     
        Note: internal commands are strict e.g. no error handling on them. They have to always 
        be correctly formmated since they are a direct manipulation of the programs internals
@@ -290,7 +336,7 @@ void command_parse(char* instructions,char* keys[],void (*values[])(char**, int)
             instruction_length++;
         }
         // formmatting
-        if (c == '\n') {break;}
+        if (c == '\n'){break;}
     }
     // if there are instructions execute them
     if (instruction_length)
@@ -310,7 +356,8 @@ void command_parse(char* instructions,char* keys[],void (*values[])(char**, int)
 ***************************************/
 #define TABLE_SIZE 100
 
-typedef struct node {
+typedef struct node
+{
     char* key;
     void* value;
     struct node* next;
@@ -319,7 +366,8 @@ typedef struct node {
 // there might be better ways of doing this but a struct will do for now if I really want a HashTable type
 typedef struct HASHTABLE_STRUCT {Node** table;} HashTable;
 
-HashTable* table_init() {
+HashTable* table_init()
+{
     HashTable* table = calloc(1, sizeof(HashTable));
     table->table = calloc(TABLE_SIZE, sizeof(Node*));
     return table;
@@ -340,18 +388,20 @@ HashTable* table_init() {
     collisions as possible.
 
     Therefore, typically it's said that on average a hash table
-    is roughly constant time (if no collisions) or linear if 
-    there is (e.g. it's will traverse a linked list of the keys
+    is roughly constant time (if no collisions) or linear (if 
+    there is e.g. it will traverse a linked list of the keys
     and do a string compare to figure out which node has the value).
 */
 
-int hash(char* key) {
+int hash(char* key)
+{
     int hash=0;
     for (int i = 0; i < strlen(key); i++) {hash+=key[i];}
     return hash % TABLE_SIZE;
 }
 
-void table_set(HashTable* table, char* key, void* value) {
+void table_set(HashTable* table, char* key, void* value)
+{
     Node* node=calloc(1, sizeof(Node*));
     node->key=key;
     node->value=value;
@@ -371,7 +421,8 @@ void* table_get(HashTable* table, char* key)
     return NULL;
 }
 
-void table_delete(HashTable* table, char* key) {
+void table_delete(HashTable* table, char* key)
+{
     int index=hash(key);
     Node* node=table->table[index];
     Node* prev=NULL;
