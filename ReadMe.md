@@ -4,7 +4,7 @@ A template virtual machine for a base custom/customizable programming language.
 
 The goal is to make a template virtual machine so that modifications can be made to create custom grammars and forms I want for a custom programming language.
 
-I'm also considering adding functionality for compiling sections of text, tokens, or forms into machine code as well e.g. writing a compiler or otherwise transpiler (e.g. converts my code into i.e. C code an then compile that).
+I'm also considering adding functionality for compiling sections of text, tokens, or forms into machine code as well e.g. writing a compiler or otherwise transpiler (e.g. converts my code into i.e. C code and then compile that).
 
 # Note:
 
@@ -31,7 +31,7 @@ Note: make sure to run ```make clean``` before you recompile because it can deci
 
 Not everything in this implementation is as efficient as it could be or necessary for a language more tailored for what you may want. It's supposed to be that way as a template so that it's easier to modify since you have a base idea of how your lexer and parser are working with a basic implementation of the memory management.
 
-This language by default is a stackless language since the intructions will map directly into functions that are not manipulating a stack object but you could modify the mappings of instructions into any data structure or algorithm for the evaluator beyond being a template support for anything you want to modify it into.
+This language by default is a stackless language since the instructions will map directly into functions that are not manipulating a stack object but you could modify the mappings of instructions into any data structure or algorithm for the evaluator beyond being a template support for anything you want to modify it into.
 
 At the moment it's made of the following:
  - lexer
@@ -52,7 +52,7 @@ Essentially it reads charcter by character from the source code string to form m
 
 It reads token by token until a single full match is found.
 
-Emergent matching means the series of tokens are accumulated one by one where with each additional token that is added to the current partial form it's checked against the forms in the ```FORMS``` variable in grammar.c file to see which one it could be (it's not able to know right away which one, hence it uses emergent matching).
+Emergent matching means the series of tokens are accumulated one by one where with each additional token that is added to the current partial form it's checked against the forms in the ```FORMS``` variable in grammar.c file to see which one it could be (it's not able to know right away which one, hence it uses emergent matching (unless you want recursive hash tables; probably not memory efficient or easy to modify though)).
 
 i.e. to illustrate emergent matching:
 
@@ -114,7 +114,7 @@ Then, this is how the algorithm would work for the sequence of tokens: A, B, C
   Y   N
 | C | I |   ||
 ```
-Since one unique Form is found, it's index is the return value and therefore the algorithm returns 0 as the index of the form (essentially).
+Since one unique Form is found, its index is the return value and therefore the algorithm returns 0 as the index of the form (essentially).
 
 So, key points on how the parser works are:
 
@@ -166,7 +166,7 @@ The program functions as a basic CLI. How it's designed is to:
 
 In this language the abstract syntax tree is not fully created then used, instead it's evaluated like a generator. Essentially: character by character for tokens, token by token for forms, and instruction by instruction for the evaluator.
 
-I call the ast nodes 'forms'. Basically each form is a node in an abstract syntax tree that has it's own related partial form (array of tokens that makes it up) and the form itself has a direct mapping to a set of instructions that instruct it to do something internal for the user i.e. load into memory, take out of memory, or run an internal function with or without certain memory involved. It has an abstract form attribute that if used holds a child form that gets substituted into the parent form (on execution) (for recursive decent parsing).
+I call the ast nodes 'forms'. Basically each form is a node in an abstract syntax tree that has its own related partial form (array of tokens that makes it up) and the form itself has a direct mapping to a set of instructions that instruct it to do something internal for the user i.e. load into memory, take out of memory, or run an internal function with or without certain memory involved. It has an abstract form attribute that if used holds a child form that gets substituted into the parent form (on execution) (for recursive decent parsing).
 
 Forms come in two types:
 
@@ -220,7 +220,7 @@ new_frame->locals=\*list of function args and kwargs\*
 return the result and free the frame object
 ```
 
-Generally for this program (before customization/ using it's defaults):
+Generally for this program (before customization/ using its defaults):
 
 grammars     - mostly well defined (relates parts of text to parts of forms)
 
