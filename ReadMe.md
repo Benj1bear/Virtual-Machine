@@ -156,6 +156,21 @@ So it essentially runs a switch statement or uses a hash table or potentially ju
  - you could upgrade the parser for using more advanced look aheads or other places where it's limited.
  - modify anything you want for your own language
 
+# To make into a compiled language
+
+ - read in a file of your code in your custom language (you'll need to add code in i.e. evaluator.c for lexing files instead of user input)
+ - instead of evaluating forms with their instructions, convert the forms with their instructions into assembly (use AT&T syntax if wanting to use gcc as the assembler)
+ - assemble the program using gcc
+
+## If wanting a custom assembler with the compiled language
+
+ - create an instruction set based on your cpu architecure e.g. your instruction set architecture (ISA)
+ - each instructions mapping to binary bits
+ - linking (using mulitple assembly files together) will need to be implemented
+ - do some code optimizations (i.e. peephole optimization (reduce unnecessary code))
+ - write a simple lexer that gets the matches and then map the tokens into binary (might be enough)
+ - write to a i.e. .exe file
+
 # design overview at a high level
 
 The program functions as a basic CLI. How it's designed is to:
